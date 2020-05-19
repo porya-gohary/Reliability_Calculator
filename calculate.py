@@ -11,6 +11,7 @@ Options:
     --faultrate, -f ALPHA         system fault rate in millisecond  [default: 0.00001]
     --sensfactor, -s D            system sensitivity factor [default: 2]
     --output, -o FILE             output file [default: output.txt]
+    --print, -p                   show output in screen
     --version, -v                 show version and exit
     --help, -h                    show this message
 """
@@ -65,6 +66,9 @@ if __name__ == "__main__":
 
     if arguments['--method']:
         M = arguments['--method']
+
+    if arguments['--print']:
+        p = arguments['--print']
 
     data = loadtxt(input, delimiter='\t', skiprows=1)  # skips header
     for x in data:
