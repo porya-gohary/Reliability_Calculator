@@ -23,6 +23,11 @@ from pathlib import Path
 d = 2
 f_max = 2000
 f_min = 800
+f_sel = 2000
+# v[] = {0.973, 1.023, 1.062, 1.115, 1.3};
+v_max = 1.3
+v_min = 800
+v_sel = 1.3
 landa0 = 0.00001
 M = 'replication'
 output = 'output.txt'
@@ -43,10 +48,35 @@ def cal_replication(exec_time, target):
 
 # TODO add NMR Reliability
 
+# Two phase NMR
+
 
 def cal_NMR(exec_time, target):
-    n = 0
-    return n
+    n = 3
+    while(True):
+        rou_min = v_min / v_max
+        rou = v_sel / v_max
+        # t_i ==> Acrual Exec. Time
+        t_i = exec_time * f_max / f_min
+        landa = (landa0 * (10 ** ((d * (1 - rou)) / (1 - rou_min))))
+        landa = (-1) * landa
+        r = math.exp(landa * exec_time)
+        R_1 = (r ** (math.ceil(n / 2)))
+        landa = (landa0 * math.pow(10, ((d * (1 - 1)) / (1 - rou_min))))
+        landa = (-1) * landa
+        r = math.exp((landa * exec_time))
+        R_2 = 0
+        r_max = math.exp(-landa0 * exec_time)
+        for k in range(1, (math.floor(n / 2)+1)):
+            for j in range(1, k+1):
+                R_2 += math.comb((math.ceil(n / 2)), j) * (((1 - r) ** j)) * ((r ** (math.ceil(n / 2) - j))) * math.comb(
+                    math.floor(n / 2), k - j) * (((1 - r_max) ** (k - j))) * ((r_max ** (math.floor(n / 2) - (k - j))))
+        #print(n, "=")
+        # print(R_1+R_2)
+        if (R_1+R_2) >= target:
+            return n
+        else:
+            n += 2
 
 
 if __name__ == "__main__":
@@ -72,5 +102,9 @@ if __name__ == "__main__":
 
     data = loadtxt(input, delimiter='\t', skiprows=1)  # skips header
     for x in data:
+        # print(x[0])
+        # print(x[1])
         if(M == 'replication'):
             print(cal_replication(x[0], x[1]))
+        if(M == 'NMR'):
+            print(cal_NMR(x[0], x[1]))
